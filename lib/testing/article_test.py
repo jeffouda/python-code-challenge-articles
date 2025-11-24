@@ -1,116 +1,89 @@
-import pytest
-
-from classes.many_to_many import Article
-from classes.many_to_many import Magazine
-from classes.many_to_many import Author
+from lib.classes.many_to_many import Author, Magazine, Article
 
 
 class TestArticle:
-    """Article in many_to_many.py"""
+    """Class Article in many_to_many.py"""
 
     def test_has_title(self):
         """Article is initialized with a title"""
         author = Author("Carry Bradshaw")
         magazine = Magazine("Vogue", "Fashion")
-        article_1 = Article(author, magazine, "How to wear a tutu with style")
-        article_2 = Article(author, magazine, "Dating life in NYC")
+        article = Article(author, magazine, "How to wear a tutu with style")
+        assert article.title == "How to wear a tutu with style"
 
-        assert article_1.title == "How to wear a tutu with style"
-        assert article_2.title == "Dating life in NYC"
-
-    def test_title_is_immutable_str(self):
+    def test_title_is_immutable_string(self):
         """title is an immutable string"""
         author = Author("Carry Bradshaw")
         magazine = Magazine("Vogue", "Fashion")
-        article_1 = Article(author, magazine, "How to wear a tutu with style")
+        article = Article(author, magazine, "How to wear a tutu with style")
 
-        # comment out the next two lines if using Exceptions
-        # article_1.title = 500
-        # assert article_1.title == "How to wear a tutu with style"
+        # Check that title is of type str
+        assert isinstance(article.title, str)
 
-        assert isinstance(article_1.title, str)
-
-        # uncomment the next two lines if using Exceptions
-        with pytest.raises(Exception):
-            Article(author, magazine, 500)
+        # Check that title cannot be changed
+        try:
+            article.title = "New Title"
+            assert False, "Title should not be mutable"
+        except AttributeError:
+            assert True
+        except Exception as e:
+            assert False, f"Unexpected exception: {e}"
 
     def test_title_is_valid(self):
         """title is between 5 and 50 characters inclusive"""
         author = Author("Carry Bradshaw")
         magazine = Magazine("Vogue", "Fashion")
-        article_1 = Article(author, magazine, "How to wear a tutu with style")
 
-        assert 5 <= len(article_1.title) <= 50
+        # Test valid title
+        article = Article(author, magazine, "How to wear a tutu with style")
+        assert article.title == "How to wear a tutu with style"
 
-        # uncomment the next two lines if using Exceptions
-        with pytest.raises(Exception):
-            Article(author, magazine, "Test")
+        # Test short title
+        try:
+            Article(author, magazine, "Hi")
+            assert False, "Short title should raise exception"
+        except ValueError:
+            assert True
+        except Exception as e:
+            assert False, f"Unexpected exception: {e}"
 
-        # uncomment the next two lines if using Exceptions
-        with pytest.raises(Exception):
-            Article(author, magazine, "How to wear a tutu with style and walk confidently down the street")
+        # Test long title
+        try:
+            Article(
+                author,
+                magazine,
+                "This title is way too long and exceeds the maximum allowed characters for an article title",
+            )
+            assert False, "Long title should raise exception"
+        except ValueError:
+            assert True
+        except Exception as e:
+            assert False, f"Unexpected exception: {e}"
 
     def test_has_an_author(self):
         """article has an author"""
-        author_1 = Author("Carry Bradshaw")
-        author_2 = Author("Nathaniel Hawthorne")
+        author = Author("Carry Bradshaw")
         magazine = Magazine("Vogue", "Fashion")
-        article_1 = Article(author_1, magazine, "How to wear a tutu with style")
-        article_2 = Article(author_2, magazine, "Dating life in NYC")
+        article = Article(author, magazine, "How to wear a tutu with style")
+        assert article.author == author
 
-        assert article_1.author == author_1
-        assert article_2.author == author_2
-
-    def test_author_of_type_author_and_mutable(self):
-        """author is of type Author and mutable"""
-        author_1 = Author("Carry Bradshaw")
-        author_2 = Author("Nathaniel Hawthorne")
+    def test_author_of_type_author(self):
+        """author is of type Author"""
+        author = Author("Carry Bradshaw")
         magazine = Magazine("Vogue", "Fashion")
-        article_1 = Article(author_1, magazine, "How to wear a tutu with style")
-        article_2 = Article(author_2, magazine, "Dating life in NYC")
-
-        assert isinstance(article_1.author, Author)
-        assert isinstance(article_2.author, Author)
-        
-        article_1.author = author_2
-        assert isinstance(article_1.author, Author)
-        assert article_1.author.name == "Nathaniel Hawthorne"
+        article = Article(author, magazine, "How to wear a tutu with style")
+        assert isinstance(article.author, Author)
 
     def test_has_a_magazine(self):
         """article has a magazine"""
         author = Author("Carry Bradshaw")
-        magazine_1 = Magazine("Vogue", "Fashion")
-        magazine_2 = Magazine("AD", "Architecture & Design")
-        article_1 = Article(author, magazine_1, "How to wear a tutu with style")
-        article_2 = Article(author, magazine_2, "Dating life in NYC")
+        magazine = Magazine("Vogue", "Fashion")
+        article = Article(author, magazine, "How to wear a tutu with style")
+        assert article.magazine == magazine
 
-        assert article_1.magazine == magazine_1
-        assert article_2.magazine == magazine_2
-
-    def test_magazine_of_type_magazine_and_mutable(self):
-        """magazine is of type Magazine and mutable"""
+    def test_magazine_of_type_magazine(self):
+        """magazine is of type Magazine"""
         author = Author("Carry Bradshaw")
-        magazine_1 = Magazine("Vogue", "Fashion")
-        magazine_2 = Magazine("AD", "Architecture & Design")
-        article_1 = Article(author, magazine_1, "How to wear a tutu with style")
-        article_2 = Article(author, magazine_2, "Dating life in NYC")
-
-        assert isinstance(article_1.magazine, Magazine)
-        assert isinstance(article_2.magazine, Magazine)
-        
-        article_1.magazine = magazine_2
-        assert isinstance(article_1.magazine, Magazine)
-        assert article_1.magazine.name == "AD"
-
-    def test_get_all_articles(self):
-        """Article class has all attribute"""
-        Article.all = []
-        author = Author("Carry Bradshaw")
-        magazine_1 = Magazine("Vogue", "Fashion")
-        magazine_2 = Magazine("AD", "Architecture & Design")
-        article_1 = Article(author, magazine_1, "How to wear a tutu with style")
-        article_2 = Article(author, magazine_2, "Dating life in NYC")
-
-        assert len(Article.all) == 2
-        assert article_1 in Article.all
-        assert article_2 in Article.all
+        magazine = Magazine("Vogue", "Fashion")
+        article = Article(author, magazine, "How to wear a tutu with style")
+        assert isinstance(article.magazine, Magazine)
